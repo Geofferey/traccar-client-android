@@ -27,15 +27,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.EditTextPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
-import androidx.preference.TwoStatePreference;
-
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,8 +35,17 @@ import android.view.MenuItem;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.preference.EditTextPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.TwoStatePreference;
+
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class MainFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
@@ -200,10 +201,13 @@ public class MainFragment extends PreferenceFragmentCompat implements OnSharedPr
     }
 
     private void initPreferences() {
+
+        TelephonyManager telephonyManager = (android.telephony.TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
         PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences, false);
 
         if (!sharedPreferences.contains(KEY_DEVICE)) {
-            String id = String.valueOf(new Random().nextInt(900000) + 100000);
+            requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 2);
+            String id = telephonyManager.getImei();
             sharedPreferences.edit().putString(KEY_DEVICE, id).apply();
             ((EditTextPreference) findPreference(KEY_DEVICE)).setText(id);
         }
